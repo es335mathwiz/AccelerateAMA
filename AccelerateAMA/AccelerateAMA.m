@@ -264,16 +264,18 @@ getLeads[eqns_List] := With[{},
 
 
 parseMod[srcDir_String,fName_String,targDir_String]:=
-Module[{tfac,xslsrc,tformer,src,trg},
+Module[{tfac,xslsrc,tformer,src,trg,tFname=targDir<>fName<>".mth"},
 JavaNew["gov.frb.ma.msu.DynareToAMAModel",
 srcDir<>fName<>".mod",targDir<>fName<>".xml",fName];
+LoadJavaClass["javax.xml.transform.TransformerFactory"];
 tfac = javax`xml`transform`TransformerFactory`newInstance[];
 xslsrc = JavaNew["javax.xml.transform.stream.StreamSource",FindFile["AMAModel2Mma.xsl"]];
   tformer = tfac[newTransformer[xslsrc]];
   src = JavaNew["javax.xml.transform.stream.StreamSource",targDir<>fName<>".xml"];
-trg = JavaNew["javax.xml.transform.stream.StreamResult",targDir<>fName<>".mth"];
+  If[FileExistsQ[tFname],DeleteFile[tFname]];
+trg = JavaNew["javax.xml.transform.stream.StreamResult",tFname];
 tformer[transform[src, trg]];
-Get[targDir<>fName<>".mth"];
+Get[tFname];
 Global`AMAModelDefinition[fName]]
 
 
