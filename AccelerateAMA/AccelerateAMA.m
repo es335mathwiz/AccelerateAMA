@@ -272,7 +272,10 @@ cmd=If[$OperatingSystem=="Unix",
 "java " <> "-cp "<>$jarDir<>"  org.apache.xalan.xslt.Process -IN `3``2`.xml  -XSL /msu/home/m1gsa00/RES2/mathAMA/AndersonMooreAlgorithm/AndersonMooreAlgorithm/AMAModel2Mma.xsl -OUT `3``2`.mth",srcDir,fName,targDir],
               StringForm[
 "java " <> "-cp "<>$jarDir<>"  org.apache.xalan.xslt.Process -IN `3``2`.xml  -XSL g:/RES2/mathAMA/AndersonMooreAlgorithm/AndersonMooreAlgorithm/AMAModel2Mma.xsl -OUT `3``2`.mth",srcDir,fName,targDir]];
-Run[cmd];
+  gulp = JavaNew["org.apache.xalan.xslt.Process"];
+cmd=StringForm["  -IN `3``2`.xml  -XSL g:/RES2/mathAMA/AndersonMooreAlgorithm/AndersonMooreAlgorithm/AMAModel2Mma.xsl -OUT `3``2`.mth",srcDir,fName,targDir];
+(*Run[cmd];*)
+gulp[main[cmd]];
 Get[targDir<>fName<>".mth"];
 Global`AMAModelDefinition[fName]]
 
@@ -281,9 +284,11 @@ mkNewDir[dirName_String]:=If[Not[FileExistsQ[dirName]],CreateDirectory[dirName]]
 firstOnPath[dirName_String]:=If[System`$Path[[1]]=!=dirName,PrependTo[System`$Path,dirName]]
 
 
-$jarDir=If[$OperatingSystem=="Unix",
-           "/msu/res1/Software/xalan-j_2_7_1/xalan.jar",
-           "r:/Software/xalan-j_2_7_1/xalan.jar"]
+$jarDir=Switch[$OperatingSystem,
+	"Unix","/msu/res1/Software/xalan-j_2_7_1/xalan.jar",
+    "Windows","r:/Software/xalan-j_2_7_1/xalan.jar",
+    "MacOSX","/msu/res1/Software/xalan-j_2_7_1/xalan.jar"
+    ]
 
 $tmpDir=$TemporaryDirectory <> "/GaryModDims/";
 If[Not[FileExistsQ[$tmpDir]], CreateDirectory[$tmpDir]]
