@@ -264,18 +264,15 @@ getLeads[eqns_List] := With[{},
 
 
 parseMod[srcDir_String,fName_String,targDir_String]:=
-Module[{cmd},
+Module[{tfac,xslsrc,tformer,src,trg},
 JavaNew["gov.frb.ma.msu.DynareToAMAModel",
 srcDir<>fName<>".mod",targDir<>fName<>".xml",fName];
-cmd=If[$OperatingSystem=="Unix",
-       StringForm[
-"java " <> "-cp "<>$jarDir<>"  org.apache.xalan.xslt.Process -IN `3``2`.xml  -XSL /msu/home/m1gsa00/RES2/mathAMA/AndersonMooreAlgorithm/AndersonMooreAlgorithm/AMAModel2Mma.xsl -OUT `3``2`.mth",srcDir,fName,targDir],
-              StringForm[
-"java " <> "-cp "<>$jarDir<>"  org.apache.xalan.xslt.Process -IN `3``2`.xml  -XSL g:/RES2/mathAMA/AndersonMooreAlgorithm/AndersonMooreAlgorithm/AMAModel2Mma.xsl -OUT `3``2`.mth",srcDir,fName,targDir]];
-  gulp = JavaNew["org.apache.xalan.xslt.Process"];
-cmd=StringForm["  -IN `3``2`.xml  -XSL g:/RES2/mathAMA/AndersonMooreAlgorithm/AndersonMooreAlgorithm/AMAModel2Mma.xsl -OUT `3``2`.mth",srcDir,fName,targDir];
-(*Run[cmd];*)
-gulp[main[cmd]];
+tfac = javax`xml`transform`TransformerFactory`newInstance[];
+xslsrc = JavaNew["javax.xml.transform.stream.StreamSource",FindFile["AMAModel2Mma.xsl"]];
+  tformer = tfac[newTransformer[xslsrc]];
+  src = JavaNew["javax.xml.transform.stream.StreamSource",targDir<>fName<>".xml"];
+trg = JavaNew["javax.xml.transform.stream.StreamResult",targDir<>fName<>".mth"];
+tformer[transform[src, trg]];
 Get[targDir<>fName<>".mth"];
 Global`AMAModelDefinition[fName]]
 
